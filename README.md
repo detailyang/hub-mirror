@@ -1,65 +1,54 @@
-# hub-mirror
+<img src="https://user-images.githubusercontent.com/55381228/221747734-13783ce6-1969-4c10-acd6-833f5046aa85.png" width="300px">
 
-使用 docker.io 或其他镜像服务来提供（但不限于） gcr.io、k8s.gcr.io、quay.io、ghcr.io 等国外镜像加速下载服务
+## hub-mirror
 
-> 为减少重复请求，合理利用资源，建议提前在 issues 搜索镜像是否已转换过
-> 
-> 示例：https://github.com/togettoyou/hub-mirror/issues?q=gcr.io%2Fgoogle-samples%2Fmicroservices-demo%2Femailservice%3Av0.3.5
+使用国内镜像仓库来提供（但不限于） docker.io、gcr.io、registry.k8s.io、k8s.gcr.io、quay.io、ghcr.io 等国外镜像加速下载服务
 
-# 原理
+示例：https://github.com/togettoyou/hub-mirror/issues/2816
 
-https://mp.weixin.qq.com/s/Vt0FRTx1PsoYFdLa0QZzWw
+## 试用
 
-> 微信公众号：SuperGopher
-> 
-> go、云原生技术、项目问题、联系我 ...... 欢迎关注，来者不拒
+[直接在我的项目中提交 issues ](https://github.com/togettoyou/hub-mirror/issues/new/choose)，按照 issue 模板修改内容即可
 
-# 开始使用
+> 个人配置的是阿里云个人实例镜像仓库，仓库限额为 300 ，所以有可能出现上传或拉取失败的情况（本人会不定时清理历史仓库
 
-## 方案一：白嫖我的，点个 Star ，直接提交 issues
+## 开始使用
 
-要求：严格按照模板规范提交，参考： [成功案例](https://github.com/togettoyou/hub-mirror/issues/1)
-，[失败案例](https://github.com/togettoyou/hub-mirror/issues/2)
-
-限制：每次提交最多 11 个镜像地址
-
-本人 Docker 账号有每日镜像拉取限额，请勿滥用
-
-## 方案二：自己动手，丰衣足食，Fork 本项目，绑定你自己的 DockerHub 账号或其他镜像服务账号
+#### Fork 本项目（可设为私有），绑定你自己的国内镜像仓库
 
 1. 绑定账号
 
-    - 如果要使用 DockerHub 的镜像服务
+   在 `Settings`-`Secrets and variables`-`Actions` 选择 `New repository secret` 新建 `DOCKER_USERNAME`（镜像仓库登录名）
+   和 `DOCKER_TOKEN`（镜像仓库密码）以及 `DOCKER_REPOSITORY` 三个 Secrets
+   
+   ![image](https://github.com/user-attachments/assets/13010521-13b2-4c55-83d6-50956e039434)
 
-      在 `Settings`-`Secrets`-`Actions` 选择 `New repository secret` 新建 `DOCKER_USERNAME`（你的 Docker 用户名）
-      和 `DOCKER_TOKEN`（你的 Docker 密码） 两个 Secrets
+   其中 `DOCKER_REPOSITORY` 配置例子：
 
-    - 如果需要使用其他镜像服务,例如腾讯云、阿里云等
+     - 腾讯云: `ccr.ccs.tencentyun.com/[namespace]`
+     - 阿里云: `registry.cn-hangzhou.aliyuncs.com/[namespace]`
+   
+   例如我的是：`registry.cn-hangzhou.aliyuncs.com/hubmirrorbytogettoyou`
+   
+   ![image](https://github.com/user-attachments/assets/5af044b7-f62e-401c-976f-a8556964b995)
 
-      在 `Settings`-`Secrets`-`Actions` 选择 `New repository secret` 新建 `DOCKER_USERNAME`（你的其他镜像服务用户名）
-      和 `DOCKER_TOKEN`（你的其他镜像服务密码）以及 `DOCKER_REPOSITORY` 三个 Secrets
 
-      其中 `DOCKER_REPOSITORY` 配置例子：
+2. 开启 `Settings`-`General`-`Features` 中的 `Issues` 功能
 
-        - 腾讯云: `ccr.ccs.tencentyun.com/xxxxxx`
-        - 阿里云: `registry.cn-hangzhou.aliyuncs.com/xxxxxx`
-        - 等其他云...
+![image](https://github.com/user-attachments/assets/f981a0b9-b164-4582-8f5e-46d8cbe41bae)
 
-2. 在 Fork 的项目中开启 `Settings`-`Options`-`Features` 中的 `Issues` 功能
+3. 修改 `Settings`-`Actions`-`General` 中的 `Workflow permissions` 为 `Read and write permissions`
 
-3. 在 `Issues`-`Labels` 选择 `New label` 依次添加三个 label ：`hub-mirror`、`success`、`failure`
+![image](https://github.com/user-attachments/assets/9f556ced-d134-41f7-b47e-fa95c10db08a)
 
-4. 在 `Actions` 里选择 `hub-mirror` ，在右边 `···` 菜单里选择 `Enable Workflow`
+4. 在 `Issues`-`Labels` 选择 `New label` 依次添加三个 label ：`hub-mirror`、`success`、`failure`
 
-## 方案三：已有魔法，支持本地使用
+![image](https://github.com/user-attachments/assets/b03db5eb-2401-49ce-ad12-515969dec27d)
 
-```shell
-$ go install github.com/togettoyou/hub-mirror@latest
-```
+5. 在 `Actions` 里选择 `hub-mirror` ，在右边 `···` 菜单里选择 `Enable Workflow`
 
-```shell
-$ hub-mirror --username=xxxxxx --password=xxxxxx --content='{ "hub-mirror": ["gcr.io/google-samples/microservices-demo/emailservice:v0.3.5","hello-world:latest"] }'
-# 如果需要使用自定义镜像仓库
-$ hub-mirror --username=xxxxxx --password=xxxxxx --repository=registry.cn-hangzhou.aliyuncs.com/xxxxxx --content='{ "hub-mirror": ["gcr.io/google-samples/microservices-demo/emailservice:v0.3.5","hello-world:latest"] }'
-```
+![image](https://github.com/user-attachments/assets/0709ac59-a731-4266-826e-0c619e933853)
 
+6. 在 Fork 的项目中提交 issues
+
+![image](https://github.com/user-attachments/assets/c0357521-6dd0-4f13-8a99-bccdf1314ab8)
